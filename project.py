@@ -1,78 +1,80 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="🍔 음식 이상형 월드컵", layout="wide")
+# 페이지 설정
+st.set_page_config(page_title="🍔 가위바위보 게임", page_icon="✊")
 
-# 🎯 음식 데이터 (이미지는 무료 URL 사용)
-foods = [
-    {"name": "🍙 주먹밥", "img": "https://www.google.com/imgres?q=%EC%A3%BC%EB%A8%B9%EB%B0%A5&imgurl=https%3A%2F%2Fstatic.japan-food.guide%2Fuploads%2Farticle%2Fcover_image%2F000%2F000%2F079%2Fd2d7e3fda4c7c8b8092baeb9a2ee995fba8a0c078bfecbcdda2f201b3fbe1820%2Fthumbnail_onigiri.jpg%3F1765173747&imgrefurl=https%3A%2F%2Fjapan-food.guide%2Fko%2Farticles%2Fonigiri&docid=81rq357Up_4hrM&tbnid=lFMhUr-onVyW9M&vet=12ahUKEwi4yej26aqTAxWVsFYBHalxKPYQnPAOegQIGRAB..i&w=375&h=250&hcb=2&ved=2ahUKEwi4yej26aqTAxWVsFYBHalxKPYQnPAOegQIGRAB"},
-    {"name": "🍜 라면", "img": "https://source.unsplash.com/600x400/?ramen"},
-    {"name": "🌮 타코", "img": "https://source.unsplash.com/600x400/?taco"},
-    {"name": "🍗 치킨", "img": "https://source.unsplash.com/600x400/?fried-chicken"},
-    {"name": "🍕 피자", "img": "https://source.unsplash.com/600x400/?pizza"},
-    {"name": "🍣 초밥", "img": "https://source.unsplash.com/600x400/?sushi"},
-    {"name": "🍛 카레", "img": "https://source.unsplash.com/600x400/?curry"},
-    {"name": "🍔 햄버거", "img": "https://source.unsplash.com/600x400/?burger"},
-    {"name": "🍝 파스타", "img": "https://source.unsplash.com/600x400/?pasta"},
-    {"name": "🥗 샐러드", "img": "https://source.unsplash.com/600x400/?salad"},
-    {"name": "🍰 케이크", "img": "https://source.unsplash.com/600x400/?cake"},
-    {"name": "🍩 도넛", "img": "https://source.unsplash.com/600x400/?donut"},
-    {"name": "🍫 초콜릿", "img": "https://source.unsplash.com/600x400/?chocolate"},
-    {"name": "🍓 딸기", "img": "https://source.unsplash.com/600x400/?strawberry"},
-    {"name": "🥞 팬케이크", "img": "https://source.unsplash.com/600x400/?pancake"},
-    {"name": "🥟 만두", "img": "https://source.unsplash.com/600x400/?dumpling"},
-]
+st.title("🍔 가위바위보 게임 ✊✋✌️")
+st.write("음식으로 즐기는 가위바위보! 😋")
 
-# 🎮 초기 상태 설정
-if "round" not in st.session_state:
-    st.session_state.round = 16
-    st.session_state.current = random.sample(foods, 16)
-    st.session_state.next_round = []
-    st.session_state.index = 0
-    st.session_state.winner = None
+# 선택지 + 음식 이미지
+choices = {
+    "가위 ✌️": {
+        "emoji": "✌️",
+        "image": "https://images.unsplash.com/photo-1604908176997-4317c13b7c3d",  # 감자튀김
+        "food": "🍟 감자튀김"
+    },
+    "바위 ✊": {
+        "emoji": "✊",
+        "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",  # 햄버거
+        "food": "🍔 햄버거"
+    },
+    "보 ✋": {
+        "emoji": "✋",
+        "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",  # 샐러드
+        "food": "🥗 샐러드"
+    }
+}
 
-# 🏆 타이틀
-st.title("🍔 음식 이상형 월드컵 😋")
-st.markdown(f"## 🔥 {st.session_state.round}강")
+# 유저 선택
+st.subheader("👉 당신의 선택은?")
+col1, col2, col3 = st.columns(3)
 
-# 🏁 우승 화면
-if st.session_state.winner:
-    st.balloons()
-    st.success(f"🏆 당신의 최애 음식은?! 👉 {st.session_state.winner['name']} 🎉")
-    st.image(st.session_state.winner["img"], use_column_width=True)
-
-    if st.button("🔄 다시하기"):
-        st.session_state.clear()
-    st.stop()
-
-# ⚔️ 현재 대결
-idx = st.session_state.index
-foods_list = st.session_state.current
-
-food1 = foods_list[idx]
-food2 = foods_list[idx + 1]
-
-col1, col2 = st.columns(2)
+user_choice = None
 
 with col1:
-    st.image(food1["img"], use_column_width=True)
-    if st.button(food1["name"], key=f"left_{idx}"):
-        st.session_state.next_round.append(food1)
-        st.session_state.index += 2
+    if st.button("가위 ✌️"):
+        user_choice = "가위 ✌️"
 
 with col2:
-    st.image(food2["img"], use_column_width=True)
-    if st.button(food2["name"], key=f"right_{idx}"):
-        st.session_state.next_round.append(food2)
-        st.session_state.index += 2
+    if st.button("바위 ✊"):
+        user_choice = "바위 ✊"
 
-# 👉 라운드 종료 처리
-if st.session_state.index >= len(st.session_state.current):
-    if len(st.session_state.next_round) == 1:
-        st.session_state.winner = st.session_state.next_round[0]
+with col3:
+    if st.button("보 ✋"):
+        user_choice = "보 ✋"
+
+# 결과 처리
+if user_choice:
+    computer_choice = random.choice(list(choices.keys()))
+
+    st.divider()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### 😎 당신")
+        st.image(choices[user_choice]["image"])
+        st.write(choices[user_choice]["food"])
+
+    with col2:
+        st.markdown("### 🤖 컴퓨터")
+        st.image(choices[computer_choice]["image"])
+        st.write(choices[computer_choice]["food"])
+
+    # 승패 판정
+    result = ""
+
+    if user_choice == computer_choice:
+        result = "🤝 비겼어요!"
+    elif (
+        (user_choice == "가위 ✌️" and computer_choice == "보 ✋") or
+        (user_choice == "바위 ✊" and computer_choice == "가위 ✌️") or
+        (user_choice == "보 ✋" and computer_choice == "바위 ✊")
+    ):
+        result = "🎉 이겼어요!!"
+        st.balloons()
     else:
-        st.session_state.current = st.session_state.next_round
-        st.session_state.next_round = []
-        st.session_state.index = 0
-        st.session_state.round //= 2
-        st.rerun()
+        result = "😢 졌어요..."
+
+    st.subheader(result)
