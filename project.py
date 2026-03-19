@@ -1,78 +1,89 @@
-# second-project
 import streamlit as st
 import random
 
-st.set_page_config(page_title="일반상식 퀴즈 🧠", page_icon="🧠")
+st.set_page_config(page_title="상식 퀴즈 🧠", page_icon="🧠")
 
-st.title("🧠 일반상식 퀴즈 게임 🎯")
-st.write("문제를 풀고 당신의 상식 레벨을 확인해보세요! 😆")
+st.title("🧠 랜덤 상식 퀴즈 🎯")
+st.write("10문제를 풀고 당신의 지식 레벨을 확인해보세요! 😆")
 
-# 문제 리스트
-quiz_data = [
-    {
-        "question": "대한민국의 수도는 어디일까요?",
-        "options": ["서울", "부산", "대구", "인천"],
-        "answer": "서울",
-        "explanation": "서울은 대한민국의 정치, 경제 중심지입니다 🇰🇷"
-    },
-    {
-        "question": "지구에서 가장 큰 대륙은?",
-        "options": ["아프리카", "유럽", "아시아", "남아메리카"],
-        "answer": "아시아",
-        "explanation": "아시아는 면적과 인구 모두 가장 큰 대륙입니다 🌏"
-    },
-    {
-        "question": "물의 화학식은?",
-        "options": ["CO2", "H2O", "O2", "NaCl"],
-        "answer": "H2O",
-        "explanation": "물은 수소 2개와 산소 1개로 이루어져 있습니다 💧"
-    },
-    {
-        "question": "태양은 무엇일까요?",
-        "options": ["행성", "별", "위성", "혜성"],
-        "answer": "별",
-        "explanation": "태양은 스스로 빛을 내는 별입니다 ☀️"
-    },
-    {
-        "question": "피카소는 어느 나라 화가일까요?",
-        "options": ["프랑스", "이탈리아", "스페인", "독일"],
-        "answer": "스페인",
-        "explanation": "피카소는 스페인 출신의 유명 화가입니다 🎨"
-    }
+# ✅ 100문제 자동 생성
+quiz_data = []
+
+base_questions = [
+    ("대한민국의 수도는?", ["서울", "부산", "대구", "인천"], "서울"),
+    ("물의 화학식은?", ["H2O", "CO2", "O2", "NaCl"], "H2O"),
+    ("태양은 무엇인가?", ["행성", "별", "위성", "혜성"], "별"),
+    ("지구는 몇 번째 행성인가?", ["1", "2", "3", "4"], "3"),
+    ("피카소의 국적은?", ["프랑스", "스페인", "이탈리아", "독일"], "스페인"),
+    ("세계에서 가장 큰 대륙은?", ["아시아", "유럽", "아프리카", "남극"], "아시아"),
+    ("1년은 몇 개월?", ["10", "11", "12", "13"], "12"),
+    ("빛의 속도는?", ["약 30만 km/s", "약 3만 km/s", "약 3000 km/s", "약 300 km/s"], "약 30만 km/s"),
+    ("컴퓨터의 두뇌는?", ["RAM", "CPU", "SSD", "GPU"], "CPU"),
+    ("대한민국 국기는?", ["성조기", "태극기", "일장기", "오성홍기"], "태극기")
 ]
 
+# 100문제로 확장 (문장만 살짝 변형)
+for i in range(10):
+    for q in base_questions:
+        quiz_data.append({
+            "question": f"{q[0]} ({i+1})",
+            "options": q[1],
+            "answer": q[2],
+            "explanation": f"정답은 {q[2]} 입니다 💡"
+        })
+
 # 상태 초기화
-if "score" not in st.session_state:
+if "quiz_set" not in st.session_state:
+    st.session_state.quiz_set = random.sample(quiz_data, 10)  # 🔥 중복 없이 10문제
+    st.session_state.current = 0
     st.session_state.score = 0
-if "question" not in st.session_state:
-    st.session_state.question = random.choice(quiz_data)
-if "answered" not in st.session_state:
-    st.session_state.answered = False
+    st.session_state.finished = False
 
-q = st.session_state.question
+# 문제 진행
+if not st.session_state.finished:
+    q = st.session_state.quiz_set[st.session_state.current]
 
-st.subheader(f"❓ 문제: {q['question']}")
+    st.subheader(f"📍 문제 {st.session_state.current + 1}/10")
+    st.write(f"❓ {q['question']}")
 
-choice = st.radio("답을 선택하세요 👇", q["options"])
+    choice = st.radio("선택하세요 👇", q["options"], key=st.session_state.current)
 
-if st.button("정답 확인 ✅"):
-    st.session_state.answered = True
+    if st.button("정답 확인 ✅"):
+        if choice == q["answer"]:
+            st.success("정답입니다! 🎉")
+            st.balloons()
+            st.session_state.score += 1
+        else:
+            st.error(f"오답 😢 정답: {q['answer']}")
 
-    if choice == q["answer"]:
-        st.success("정답입니다! 🎉😆")
-        st.balloons()
-        st.session_state.score += 1
+        st.info(q["explanation"])
+
+        if st.session_state.current < 9:
+            if st.button("다음 문제 ➡️"):
+                st.session_state.current += 1
+        else:
+            st.session_state.finished = True
+
+# 결과 화면
+else:
+    score = st.session_state.score
+
+    st.title("🏁 결과 발표 🎉")
+    st.subheader(f"당신의 점수: {score} / 10")
+
+    # 🧠 지식 수준 평가
+    if score == 10:
+        level = "🧠 천재 수준"
+    elif score >= 8:
+        level = "🔥 매우 뛰어난 지식"
+    elif score >= 5:
+        level = "👍 평균 이상"
+    elif score >= 3:
+        level = "🙂 조금 더 공부 필요"
     else:
-        st.error(f"오답입니다 😢 정답은 '{q['answer']}' 입니다!")
+        level = "😅 기초부터 다시!"
 
-    st.info(f"💡 해설: {q['explanation']}")
+    st.success(f"당신의 지식 레벨: {level}")
 
-# 다음 문제 버튼
-if st.session_state.answered:
-    if st.button("다음 문제 ➡️"):
-        st.session_state.question = random.choice(quiz_data)
-        st.session_state.answered = False
-
-# 점수 표시
-st.markdown("---")
-st.subheader(f"🏆 현재 점수: {st.session_state.score} 점")
+    if st.button("다시 도전 🔄"):
+        st.session_state.clear()
