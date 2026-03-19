@@ -6,7 +6,7 @@ st.set_page_config(page_title="상식 퀴즈 🧠", page_icon="🧠")
 st.title("🧠 랜덤 상식 퀴즈 🎯")
 st.write("10문제를 풀고 당신의 지식 레벨을 확인해보세요! 😆")
 
-# ✅ 100문제 자동 생성
+# 문제 생성
 quiz_data = []
 
 base_questions = [
@@ -22,7 +22,7 @@ base_questions = [
     ("대한민국 국기는?", ["성조기", "태극기", "일장기", "오성홍기"], "태극기")
 ]
 
-# 100문제로 확장 (문장만 살짝 변형)
+# 100문제 확장
 for i in range(10):
     for q in base_questions:
         quiz_data.append({
@@ -34,10 +34,11 @@ for i in range(10):
 
 # 상태 초기화
 if "quiz_set" not in st.session_state:
-    st.session_state.quiz_set = random.sample(quiz_data, 10)  # 🔥 중복 없이 10문제
+    st.session_state.quiz_set = random.sample(quiz_data, 10)
     st.session_state.current = 0
     st.session_state.score = 0
     st.session_state.finished = False
+    st.session_state.answered = False  # ⭐ 핵심 추가
 
 # 문제 진행
 if not st.session_state.finished:
@@ -46,23 +47,30 @@ if not st.session_state.finished:
     st.subheader(f"📍 문제 {st.session_state.current + 1}/10")
     st.write(f"❓ {q['question']}")
 
-    choice = st.radio("선택하세요 👇", q["options"], key=st.session_state.current)
+    choice = st.radio("선택하세요 👇", q["options"], key=f"q_{st.session_state.current}")
 
-    if st.button("정답 확인 ✅"):
-        if choice == q["answer"]:
-            st.success("정답입니다! 🎉")
-            st.balloons()
-            st.session_state.score += 1
-        else:
-            st.error(f"오답 😢 정답: {q['answer']}")
+    # ✅ 정답 확인 버튼 (아직 안 눌렀을 때만 보임)
+    if not st.session_state.answered:
+        if st.button("정답 확인 ✅"):
+            st.session_state.answered = True
 
-        st.info(q["explanation"])
+            if choice == q["answer"]:
+                st.success("정답입니다! 🎉")
+                st.balloons()
+                st.session_state.score += 1
+            else:
+                st.error(f"오답 😢 정답: {q['answer']}")
 
-        if st.session_state.current < 9:
-            if st.button("다음 문제 ➡️"):
-                st.session_state.current += 1
-        else:
-            st.session_state.finished = True
+            st.info(q["explanation"])
+
+    # ✅ 정답 확인 후 → 다음 문제 버튼 등장
+    if st.session_state.answered:
+        if st.button("다음 문제 ➡️"):
+            st.session_state.current += 1
+            st.session_state.answered = False
+
+            if st.session_state.current >= 10:
+                st.session_state.finished = True
 
 # 결과 화면
 else:
@@ -71,7 +79,6 @@ else:
     st.title("🏁 결과 발표 🎉")
     st.subheader(f"당신의 점수: {score} / 10")
 
-    # 🧠 지식 수준 평가
     if score == 10:
         level = "🧠 천재 수준"
     elif score >= 8:
