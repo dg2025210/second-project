@@ -1,58 +1,94 @@
 import streamlit as st
-from PIL import Image, ImageDraw
+import random
+import time
 
-st.set_page_config(page_title="🎨 그림판 앱", page_icon="🎨")
+st.set_page_config(page_title="🎮 Dodge Game", page_icon="🎯", layout="centered")
 
-st.title("🎨 귀여운 그림판 앱")
-st.write("마우스로 좌표를 클릭해서 그림을 그려보세요! ✨")
+# ----------------------
+# 초기 상태 설정
+# ----------------------
+if "player_x" not in st.session_state:
+    st.session_state.player_x = 5
+if "obstacles" not in st.session_state:
+    st.session_state.obstacles = []
+if "score" not in st.session_state:
+    st.session_state.score = 0
+if "game_over" not in st.session_state:
+    st.session_state.game_over = False
+if "speed" not in st.session_state:
+    st.session_state.speed = 0.3
 
-# 세션 상태 초기화
-if "points" not in st.session_state:
-    st.session_state.points = []
+# ----------------------
+# UI
+# ----------------------
+st.title("🎮 피하기 게임 (Dodge Game)")
+st.markdown("👉 좌우 버튼으로 캐릭터를 움직여 장애물을 피하세요!")
 
-if "image" not in st.session_state:
-    st.session_state.image = Image.new("RGB", (400, 400), "white")
+col1, col2, col3 = st.columns(3)
 
-# 🎨 설정 UI
-col1, col2 = st.columns(2)
-
+# ----------------------
+# 이동 버튼
+# ----------------------
 with col1:
-    color = st.color_picker("🎨 색상 선택", "#000000")
-
-with col2:
-    size = st.slider("✏️ 선 굵기", 1, 20, 5)
-
-# 클릭 좌표 입력 (대체 방식)
-x = st.number_input("X 좌표", 0, 399, 0)
-y = st.number_input("Y 좌표", 0, 399, 0)
-
-# 그림 그리기
-if st.button("✏️ 점 찍기"):
-    draw = ImageDraw.Draw(st.session_state.image)
-    draw.ellipse(
-        (x-size, y-size, x+size, y+size),
-        fill=color
-    )
-    st.session_state.points.append((x, y))
-
-# 이미지 표시
-st.image(st.session_state.image, caption="🖼️ 당신의 작품")
-
-# 기능 버튼
-col3, col4 = st.columns(2)
+    if st.button("⬅️ 왼쪽"):
+        if st.session_state.player_x > 0:
+            st.session_state.player_x -= 1
 
 with col3:
-    if st.button("🧹 초기화"):
-        st.session_state.image = Image.new("RGB", (400, 400), "white")
-        st.session_state.points = []
-        st.success("캔버스를 깨끗하게 만들었어요! ✨")
+    if st.button("➡️ 오른쪽"):
+        if st.session_state.player_x < 10:
+            st.session_state.player_x += 1
 
-with col4:
-    if st.button("💾 저장"):
-        st.session_state.image.save("my_drawing.png")
-        st.success("저장 완료! 🎉")
-        st.balloons()
+# ----------------------
+# 게임 보드 출력
+# ----------------------
+board = [["⬛" for _ in range(11)] for _ in range(10)]
 
-# 안내
-st.markdown("---")
-st.info("💡 팁: 여러 점을 찍어서 그림을 완성해보세요!")
+# 플레이어 표시
+board[9][st.session_state.player_x] = "🟦"
+
+# 장애물 생성
+if random.random() < 0.4:
+    st.session_state.obstacles.append([0, random.randint(0, 10)])
+
+new_obstacles = []
+for y, x in st.session_state.obstacles:
+    y += 1
+    if y < 10:
+        new_obstacles.append([y, x])
+        board[y][x] = "💣"
+
+        # 충돌 체크
+        if y == 9 and x == st.session_state.player_x:
+            st.session_state.game_over = True
+
+st.session_state.obstacles = new_obstacles
+
+# ----------------------
+# 출력
+# ----------------------
+for row in board:
+    st.write("".join(row))
+
+st.markdown(f"### ⭐ 점수: {st.session_state.score}")
+
+# ----------------------
+# 게임 상태 처리
+# ----------------------
+if not st.session_state.game_over:
+    st.session_state.score += 1
+    time.sleep(st.session_state.speed)
+    st.rerun()
+
+else:
+    st.error("💥 게임 오버!")
+    st.balloons()
+
+    st.markdown(f"## 🎉 최종 점수: {st.session_state.score}")
+
+    if st.button("🔄 다시 시작"):
+        st.session_state.player_x = 5
+        st.session_state.obstacles = []
+        st.session_state.score = 0
+        st.session_state.game_over = False
+        st.rerun()
