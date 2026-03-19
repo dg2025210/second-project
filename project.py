@@ -5,22 +5,22 @@ st.set_page_config(page_title="🍔 음식 이상형 월드컵", layout="wide")
 
 # 🎯 음식 데이터 (이미지는 무료 URL 사용)
 foods = [
-    {"name": "🍕 피자", "img": "https://images.unsplash.com/photo-1601924638867-3ec1c7c3b24f"},
-    {"name": "🍔 햄버거", "img": "https://images.unsplash.com/photo-1550547660-d9450f859349"},
-    {"name": "🍜 라면", "img": "https://images.unsplash.com/photo-1604908176997-4318f1c28f2d"},
-    {"name": "🍣 초밥", "img": "https://images.unsplash.com/photo-1562158070-622a5d7c3a29"},
-    {"name": "🍗 치킨", "img": "https://images.unsplash.com/photo-1606755962773-d324e9a13086"},
-    {"name": "🌮 타코", "img": "https://images.unsplash.com/photo-1601924582975-7e6f4f2c9b87"},
-    {"name": "🍝 파스타", "img": "https://images.unsplash.com/photo-1589302168068-964664d93dc0"},
-    {"name": "🥗 샐러드", "img": "https://images.unsplash.com/photo-1551248429-40975aa4de74"},
-    {"name": "🍰 케이크", "img": "https://images.unsplash.com/photo-1578985545062-69928b1d9587"},
-    {"name": "🍩 도넛", "img": "https://images.unsplash.com/photo-1542826438-bd32f43d626f"},
-    {"name": "🍫 초콜릿", "img": "https://images.unsplash.com/photo-1511381939415-e44015466834"},
-    {"name": "🍓 딸기", "img": "https://images.unsplash.com/photo-1464965911861-746a04b4bca6"},
-    {"name": "🥞 팬케이크", "img": "https://images.unsplash.com/photo-1587735243615-c03f25aaff15"},
-    {"name": "🍙 주먹밥", "img": "https://images.unsplash.com/photo-1604908176997-4318f1c28f2d"},
-    {"name": "🍛 카레", "img": "https://images.unsplash.com/photo-1604909052743-2f3c7c3e5e7f"},
-    {"name": "🥟 만두", "img": "https://images.unsplash.com/photo-1608032077018-c9aad9565d29"},
+    {"name": "🍙 주먹밥", "img": "https://www.google.com/imgres?q=%EC%A3%BC%EB%A8%B9%EB%B0%A5&imgurl=https%3A%2F%2Fstatic.japan-food.guide%2Fuploads%2Farticle%2Fcover_image%2F000%2F000%2F079%2Fd2d7e3fda4c7c8b8092baeb9a2ee995fba8a0c078bfecbcdda2f201b3fbe1820%2Fthumbnail_onigiri.jpg%3F1765173747&imgrefurl=https%3A%2F%2Fjapan-food.guide%2Fko%2Farticles%2Fonigiri&docid=81rq357Up_4hrM&tbnid=lFMhUr-onVyW9M&vet=12ahUKEwi4yej26aqTAxWVsFYBHalxKPYQnPAOegQIGRAB..i&w=375&h=250&hcb=2&ved=2ahUKEwi4yej26aqTAxWVsFYBHalxKPYQnPAOegQIGRAB"},
+    {"name": "🍜 라면", "img": "https://source.unsplash.com/600x400/?ramen"},
+    {"name": "🌮 타코", "img": "https://source.unsplash.com/600x400/?taco"},
+    {"name": "🍗 치킨", "img": "https://source.unsplash.com/600x400/?fried-chicken"},
+    {"name": "🍕 피자", "img": "https://source.unsplash.com/600x400/?pizza"},
+    {"name": "🍣 초밥", "img": "https://source.unsplash.com/600x400/?sushi"},
+    {"name": "🍛 카레", "img": "https://source.unsplash.com/600x400/?curry"},
+    {"name": "🍔 햄버거", "img": "https://source.unsplash.com/600x400/?burger"},
+    {"name": "🍝 파스타", "img": "https://source.unsplash.com/600x400/?pasta"},
+    {"name": "🥗 샐러드", "img": "https://source.unsplash.com/600x400/?salad"},
+    {"name": "🍰 케이크", "img": "https://source.unsplash.com/600x400/?cake"},
+    {"name": "🍩 도넛", "img": "https://source.unsplash.com/600x400/?donut"},
+    {"name": "🍫 초콜릿", "img": "https://source.unsplash.com/600x400/?chocolate"},
+    {"name": "🍓 딸기", "img": "https://source.unsplash.com/600x400/?strawberry"},
+    {"name": "🥞 팬케이크", "img": "https://source.unsplash.com/600x400/?pancake"},
+    {"name": "🥟 만두", "img": "https://source.unsplash.com/600x400/?dumpling"},
 ]
 
 # 🎮 초기 상태 설정
