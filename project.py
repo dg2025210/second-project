@@ -1,96 +1,136 @@
 import streamlit as st
 import random
+import time
 
-st.set_page_config(page_title="상식 퀴즈 🧠", page_icon="🧠")
+st.set_page_config(page_title="🎮 Emoji Tetris", layout="centered")
 
-st.title("🧠 랜덤 상식 퀴즈 🎯")
-st.write("10문제를 풀고 당신의 지식 레벨을 확인해보세요! 😆")
+st.title("🎮 Emoji 테트리스")
+st.caption("← → ⬇️ 키 대신 버튼으로 조작하세요!")
 
-# 문제 생성
-quiz_data = []
+# 보드 설정
+WIDTH = 10
+HEIGHT = 15
+EMPTY = "⬛"
 
-base_questions = [
-    ("대한민국의 수도는?", ["서울", "부산", "대구", "인천"], "서울"),
-    ("물의 화학식은?", ["H2O", "CO2", "O2", "NaCl"], "H2O"),
-    ("태양은 무엇인가?", ["행성", "별", "위성", "혜성"], "별"),
-    ("지구는 몇 번째 행성인가?", ["1", "2", "3", "4"], "3"),
-    ("피카소의 국적은?", ["프랑스", "스페인", "이탈리아", "독일"], "스페인"),
-    ("세계에서 가장 큰 대륙은?", ["아시아", "유럽", "아프리카", "남극"], "아시아"),
-    ("1년은 몇 개월?", ["10", "11", "12", "13"], "12"),
-    ("빛의 속도는?", ["약 30만 km/s", "약 3만 km/s", "약 3000 km/s", "약 300 km/s"], "약 30만 km/s"),
-    ("컴퓨터의 두뇌는?", ["RAM", "CPU", "SSD", "GPU"], "CPU"),
-    ("대한민국 국기는?", ["성조기", "태극기", "일장기", "오성홍기"], "태극기")
+SHAPES = [
+    [["🟥","🟥","🟥","🟥"]],
+    [["🟩","🟩"],["🟩","🟩"]],
+    [["⬜","🟦","⬜"],["🟦","🟦","🟦"]],
+    [["🟨","🟨","⬜"],["⬜","🟨","🟨"]],
 ]
 
-# 100문제 확장
-for i in range(10):
-    for q in base_questions:
-        quiz_data.append({
-            "question": f"{q[0]} ({i+1})",
-            "options": q[1],
-            "answer": q[2],
-            "explanation": f"정답은 {q[2]} 입니다 💡"
-        })
+def create_board():
+    return [[EMPTY for _ in range(WIDTH)] for _ in range(HEIGHT)]
 
-# 상태 초기화
-if "quiz_set" not in st.session_state:
-    st.session_state.quiz_set = random.sample(quiz_data, 10)
-    st.session_state.current = 0
+def new_block():
+    shape = random.choice(SHAPES)
+    return {
+        "shape": shape,
+        "x": WIDTH // 2 - len(shape[0]) // 2,
+        "y": 0
+    }
+
+def draw_board(board, block):
+    temp = [row[:] for row in board]
+
+    for i, row in enumerate(block["shape"]):
+        for j, cell in enumerate(row):
+            if cell != "⬜":
+                x = block["x"] + j
+                y = block["y"] + i
+                if 0 <= y < HEIGHT and 0 <= x < WIDTH:
+                    temp[y][x] = cell
+
+    for row in temp:
+        st.write("".join(row))
+
+def collision(board, block, dx=0, dy=0):
+    for i, row in enumerate(block["shape"]):
+        for j, cell in enumerate(row):
+            if cell == "⬜":
+                continue
+            x = block["x"] + j + dx
+            y = block["y"] + i + dy
+
+            if x < 0 or x >= WIDTH or y >= HEIGHT:
+                return True
+            if y >= 0 and board[y][x] != EMPTY:
+                return True
+    return False
+
+def merge(board, block):
+    for i, row in enumerate(block["shape"]):
+        for j, cell in enumerate(row):
+            if cell != "⬜":
+                x = block["x"] + j
+                y = block["y"] + i
+                if 0 <= y < HEIGHT:
+                    board[y][x] = cell
+
+def clear_lines(board):
+    new_board = [row for row in board if any(cell == EMPTY for cell in row)]
+    lines_cleared = HEIGHT - len(new_board)
+
+    for _ in range(lines_cleared):
+        new_board.insert(0, [EMPTY]*WIDTH)
+
+    return new_board, lines_cleared
+
+# 세션 상태 초기화
+if "board" not in st.session_state:
+    st.session_state.board = create_board()
+    st.session_state.block = new_block()
     st.session_state.score = 0
-    st.session_state.finished = False
-    st.session_state.answered = False  # ⭐ 핵심 추가
+    st.session_state.game_over = False
 
-# 문제 진행
-if not st.session_state.finished:
-    q = st.session_state.quiz_set[st.session_state.current]
+board = st.session_state.board
+block = st.session_state.block
 
-    st.subheader(f"📍 문제 {st.session_state.current + 1}/10")
-    st.write(f"❓ {q['question']}")
+# 게임 오버 체크
+if collision(board, block):
+    st.error("💀 게임 오버!")
+    st.balloons()
+    st.session_state.game_over = True
 
-    choice = st.radio("선택하세요 👇", q["options"], key=f"q_{st.session_state.current}")
+# 화면 출력
+draw_board(board, block)
 
-    # ✅ 정답 확인 버튼 (아직 안 눌렀을 때만 보임)
-    if not st.session_state.answered:
-        if st.button("정답 확인 ✅"):
-            st.session_state.answered = True
+# 점수
+st.markdown(f"### 🏆 점수: {st.session_state.score}")
 
-            if choice == q["answer"]:
-                st.success("정답입니다! 🎉")
-                st.balloons()
-                st.session_state.score += 1
-            else:
-                st.error(f"오답 😢 정답: {q['answer']}")
+# 버튼 UI
+col1, col2, col3 = st.columns(3)
 
-            st.info(q["explanation"])
+with col1:
+    if st.button("⬅️ 왼쪽"):
+        if not collision(board, block, dx=-1):
+            block["x"] -= 1
 
-    # ✅ 정답 확인 후 → 다음 문제 버튼 등장
-    if st.session_state.answered:
-        if st.button("다음 문제 ➡️"):
-            st.session_state.current += 1
-            st.session_state.answered = False
+with col2:
+    if st.button("⬇️ 아래"):
+        if not collision(board, block, dy=1):
+            block["y"] += 1
 
-            if st.session_state.current >= 10:
-                st.session_state.finished = True
+with col3:
+    if st.button("➡️ 오른쪽"):
+        if not collision(board, block, dx=1):
+            block["x"] += 1
 
-# 결과 화면
+# 자동 낙하
+time.sleep(0.3)
+
+if not collision(board, block, dy=1):
+    block["y"] += 1
 else:
-    score = st.session_state.score
+    merge(board, block)
+    board, cleared = clear_lines(board)
 
-    st.title("🏁 결과 발표 🎉")
-    st.subheader(f"당신의 점수: {score} / 10")
+    if cleared > 0:
+        st.success(f"🎉 {cleared}줄 제거!")
+        st.balloons()
+        st.session_state.score += cleared * 10
 
-    if score == 10:
-        level = "🧠 천재 수준"
-    elif score >= 8:
-        level = "🔥 매우 뛰어난 지식"
-    elif score >= 5:
-        level = "👍 평균 이상"
-    elif score >= 3:
-        level = "🙂 조금 더 공부 필요"
-    else:
-        level = "😅 기초부터 다시!"
+    st.session_state.block = new_block()
 
-    st.success(f"당신의 지식 레벨: {level}")
-
-    if st.button("다시 도전 🔄"):
-        st.session_state.clear()
+# 다시 실행
+st.rerun()
