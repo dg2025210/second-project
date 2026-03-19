@@ -1,106 +1,78 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import random
 
-st.set_page_config(page_title="🎮 Keyboard Dodge Game", page_icon="🎯")
+st.set_page_config(page_title="🍔 음식 이상형 월드컵", layout="wide")
 
-st.title("🎮 키보드 피하기 게임")
-st.markdown("👉 방향키 ⬅️ ➡️ 로 움직여서 떨어지는 장애물을 피하세요!")
+# 🎯 음식 데이터 (이미지는 무료 URL 사용)
+foods = [
+    {"name": "🍕 피자", "img": "https://images.unsplash.com/photo-1601924638867-3ec1c7c3b24f"},
+    {"name": "🍔 햄버거", "img": "https://images.unsplash.com/photo-1550547660-d9450f859349"},
+    {"name": "🍜 라면", "img": "https://images.unsplash.com/photo-1604908176997-4318f1c28f2d"},
+    {"name": "🍣 초밥", "img": "https://images.unsplash.com/photo-1562158070-622a5d7c3a29"},
+    {"name": "🍗 치킨", "img": "https://images.unsplash.com/photo-1606755962773-d324e9a13086"},
+    {"name": "🌮 타코", "img": "https://images.unsplash.com/photo-1601924582975-7e6f4f2c9b87"},
+    {"name": "🍝 파스타", "img": "https://images.unsplash.com/photo-1589302168068-964664d93dc0"},
+    {"name": "🥗 샐러드", "img": "https://images.unsplash.com/photo-1551248429-40975aa4de74"},
+    {"name": "🍰 케이크", "img": "https://images.unsplash.com/photo-1578985545062-69928b1d9587"},
+    {"name": "🍩 도넛", "img": "https://images.unsplash.com/photo-1542826438-bd32f43d626f"},
+    {"name": "🍫 초콜릿", "img": "https://images.unsplash.com/photo-1511381939415-e44015466834"},
+    {"name": "🍓 딸기", "img": "https://images.unsplash.com/photo-1464965911861-746a04b4bca6"},
+    {"name": "🥞 팬케이크", "img": "https://images.unsplash.com/photo-1587735243615-c03f25aaff15"},
+    {"name": "🍙 주먹밥", "img": "https://images.unsplash.com/photo-1604908176997-4318f1c28f2d"},
+    {"name": "🍛 카레", "img": "https://images.unsplash.com/photo-1604909052743-2f3c7c3e5e7f"},
+    {"name": "🥟 만두", "img": "https://images.unsplash.com/photo-1608032077018-c9aad9565d29"},
+]
 
-game_html = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-    body {
-        text-align: center;
-        background-color: #111;
-        color: white;
-        font-family: sans-serif;
-    }
-    canvas {
-        background-color: black;
-        margin-top: 10px;
-        border: 2px solid white;
-    }
-</style>
-</head>
-<body>
+# 🎮 초기 상태 설정
+if "round" not in st.session_state:
+    st.session_state.round = 16
+    st.session_state.current = random.sample(foods, 16)
+    st.session_state.next_round = []
+    st.session_state.index = 0
+    st.session_state.winner = None
 
-<canvas id="game" width="300" height="400"></canvas>
-<h3 id="score">⭐ 점수: 0</h3>
+# 🏆 타이틀
+st.title("🍔 음식 이상형 월드컵 😋")
+st.markdown(f"## 🔥 {st.session_state.round}강")
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+# 🏁 우승 화면
+if st.session_state.winner:
+    st.balloons()
+    st.success(f"🏆 당신의 최애 음식은?! 👉 {st.session_state.winner['name']} 🎉")
+    st.image(st.session_state.winner["img"], use_column_width=True)
 
-let playerX = 140;
-let obstacles = [];
-let score = 0;
-let gameOver = false;
+    if st.button("🔄 다시하기"):
+        st.session_state.clear()
+    st.stop()
 
-// 키보드 입력
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") {
-        playerX -= 20;
-    }
-    if (e.key === "ArrowRight") {
-        playerX += 20;
-    }
-});
+# ⚔️ 현재 대결
+idx = st.session_state.index
+foods_list = st.session_state.current
 
-// 장애물 생성
-function spawnObstacle() {
-    let x = Math.floor(Math.random() * 15) * 20;
-    obstacles.push({x: x, y: 0});
-}
+food1 = foods_list[idx]
+food2 = foods_list[idx + 1]
 
-// 게임 루프
-function update() {
-    if (gameOver) return;
+col1, col2 = st.columns(2)
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+with col1:
+    st.image(food1["img"], use_column_width=True)
+    if st.button(food1["name"], key=f"left_{idx}"):
+        st.session_state.next_round.append(food1)
+        st.session_state.index += 2
 
-    // 플레이어
-    ctx.fillStyle = "cyan";
-    ctx.fillRect(playerX, 360, 20, 20);
+with col2:
+    st.image(food2["img"], use_column_width=True)
+    if st.button(food2["name"], key=f"right_{idx}"):
+        st.session_state.next_round.append(food2)
+        st.session_state.index += 2
 
-    // 장애물
-    ctx.fillStyle = "red";
-    for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].y += 5;
-        ctx.fillRect(obstacles[i].x, obstacles[i].y, 20, 20);
-
-        // 충돌 체크
-        if (
-            obstacles[i].y > 340 &&
-            obstacles[i].x === playerX
-        ) {
-            gameOver = true;
-            document.getElementById("score").innerText = "💥 게임 오버! 점수: " + score;
-
-            // 풍선 효과 (Streamlit과 통신)
-            window.parent.postMessage({type: "streamlit:balloons"}, "*");
-        }
-    }
-
-    // 점수 증가
-    score++;
-    document.getElementById("score").innerText = "⭐ 점수: " + score;
-
-    // 랜덤 생성
-    if (Math.random() < 0.05) {
-        spawnObstacle();
-    }
-
-    requestAnimationFrame(update);
-}
-
-// 시작
-update();
-</script>
-
-</body>
-</html>
-"""
-
-components.html(game_html, height=500)
+# 👉 라운드 종료 처리
+if st.session_state.index >= len(st.session_state.current):
+    if len(st.session_state.next_round) == 1:
+        st.session_state.winner = st.session_state.next_round[0]
+    else:
+        st.session_state.current = st.session_state.next_round
+        st.session_state.next_round = []
+        st.session_state.index = 0
+        st.session_state.round //= 2
+        st.rerun()
