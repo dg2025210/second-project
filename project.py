@@ -2,79 +2,64 @@ import streamlit as st
 import random
 
 # 페이지 설정
-st.set_page_config(page_title="🍔 가위바위보 게임", page_icon="✊")
+st.set_page_config(page_title="가위바위보 게임 ✊✌️✋", page_icon="🎮")
 
-st.title("🍔 가위바위보 게임 ✊✋✌️")
-st.write("음식으로 즐기는 가위바위보! 😋")
+# 제목
+st.title("🎮 가위바위보 게임 ✊✌️✋")
+st.write("컴퓨터와 가위바위보 한판! 이기면 🎈풍선이 터집니다!")
 
-# 선택지 + 음식 이미지
-choices = {
-    "가위 ✌️": {
-        "emoji": "✌️",
-        "image": "https://images.unsplash.com/photo-1604908176997-4317c13b7c3d",  # 감자튀김
-        "food": "🍟 감자튀김"
-    },
-    "바위 ✊": {
-        "emoji": "✊",
-        "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",  # 햄버거
-        "food": "🍔 햄버거"
-    },
-    "보 ✋": {
-        "emoji": "✋",
-        "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",  # 샐러드
-        "food": "🥗 샐러드"
-    }
+# 이미지 URL
+images = {
+    "가위": "https://cdn-icons-png.flaticon.com/512/3595/3595455.png",
+    "바위": "https://cdn-icons-png.flaticon.com/512/686/686589.png",
+    "보": "https://cdn-icons-png.flaticon.com/512/3595/3595458.png"
 }
 
-# 유저 선택
+choices = ["가위", "바위", "보"]
+
+# 사용자 선택
 st.subheader("👉 당신의 선택은?")
-col1, col2, col3 = st.columns(3)
+user_choice = st.radio(
+    "선택하세요!",
+    choices,
+    horizontal=True
+)
 
-user_choice = None
+# 버튼
+if st.button("🔥 결과 보기!"):
 
-with col1:
-    if st.button("가위 ✌️"):
-        user_choice = "가위 ✌️"
+    computer_choice = random.choice(choices)
 
-with col2:
-    if st.button("바위 ✊"):
-        user_choice = "바위 ✊"
-
-with col3:
-    if st.button("보 ✋"):
-        user_choice = "보 ✋"
-
-# 결과 처리
-if user_choice:
-    computer_choice = random.choice(list(choices.keys()))
-
-    st.divider()
+    st.markdown("---")
+    st.subheader("🧑 당신 vs 💻 컴퓨터")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("### 😎 당신")
-        st.image(choices[user_choice]["image"])
-        st.write(choices[user_choice]["food"])
+        st.markdown("### 🧑 당신")
+        st.image(images[user_choice], width=150)
+        st.write(f"👉 {user_choice}")
 
     with col2:
-        st.markdown("### 🤖 컴퓨터")
-        st.image(choices[computer_choice]["image"])
-        st.write(choices[computer_choice]["food"])
+        st.markdown("### 💻 컴퓨터")
+        st.image(images[computer_choice], width=150)
+        st.write(f"👉 {computer_choice}")
 
-    # 승패 판정
-    result = ""
+    st.markdown("---")
 
+    # 결과 판정
     if user_choice == computer_choice:
-        result = "🤝 비겼어요!"
+        st.info("😐 비겼습니다!")
     elif (
-        (user_choice == "가위 ✌️" and computer_choice == "보 ✋") or
-        (user_choice == "바위 ✊" and computer_choice == "가위 ✌️") or
-        (user_choice == "보 ✋" and computer_choice == "바위 ✊")
+        (user_choice == "가위" and computer_choice == "보") or
+        (user_choice == "바위" and computer_choice == "가위") or
+        (user_choice == "보" and computer_choice == "바위")
     ):
-        result = "🎉 이겼어요!!"
+        st.success("🎉 당신이 이겼습니다!!")
         st.balloons()
     else:
-        result = "😢 졌어요..."
+        st.error("😢 컴퓨터가 이겼습니다!")
 
-    st.subheader(result)
+# 하단 꾸미기
+st.markdown("---")
+st.caption("✨ 재미로 만든 미니 게임 | Streamlit 💙")
